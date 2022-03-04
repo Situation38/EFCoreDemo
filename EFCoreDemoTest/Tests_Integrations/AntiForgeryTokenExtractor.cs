@@ -1,8 +1,4 @@
 ﻿
-
-/*
- * 
- * 
 //Le jeton anti-contrefaçon peut être utilisé pour aider à protéger
 //notre application contre la falsification des requêtes intersites
 
@@ -19,9 +15,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace IntegrationTestingProject
+namespace EFCoreDemoTest.Tests_Integrations
 {
     public static class AntiForgeryTokenExtractor
+    //Une exception est levée si elle n'est pas trouvée.
+    //Cette méthode récupère la valeur de la propriété Set-Cookie
+    //à partir de l'en-tête de notre réponse
+    //Il lève une exception si le cookie n'est pas présent.
+
     {
         public static string Field { get; } = "AntiForgeryTokenField";
         public static string Cookie { get; } = "AntiForgeryTokenCookie";
@@ -39,6 +40,9 @@ namespace IntegrationTestingProject
         }
 
         private static string ExtractAntiForgeryToken(string htmlBody)
+        ////Cette méthode utilise l'expression regex pour extraire le contrôle HTML de la chaîne html Body
+        //qui contient la valeur du champ anti-falsification
+       
         {
             var requestVerificationTokenMatch = Regex.Match(htmlBody, $@"\<input name=""{Field}"" type=""hidden"" value=""([^""]+)"" \/\>");
             if (requestVerificationTokenMatch.Success)
@@ -47,6 +51,9 @@ namespace IntegrationTestingProject
         }
 
         public static async Task<(string field, string cookie)> ExtractAntiForgeryValues(HttpResponseMessage response)
+        //Cette méthode collecte les résultats des 2 méthodes
+        //ci-dessus et les renvoie sous la forme d'un objet Tuple
+        
         {
             var cookie = ExtractCookieValue(response);
             var token = ExtractAntiForgeryToken(await response.Content.ReadAsStringAsync());
@@ -62,4 +69,3 @@ namespace IntegrationTestingProject
 
 
 
-*/

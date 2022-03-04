@@ -4,6 +4,7 @@
 using EFCoreDemo;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Net.Http.Headers;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Net;
@@ -177,15 +178,22 @@ namespace EFCoreDemoTest.Tests_Integrations
         public async Task Create_POST_Action_InvalidModel()
         {
             // Arrange
+            //on extrait les valeurs anti-falsification
+            var initialRes = await _client.GetAsync("https://localhost:44302/Students/Create/");
+            var antiForgeryVal = await AntiForgeryTokenExtractor.ExtractAntiForgeryValues(initialRes);
+
             //oN crée un message de requête HTTP dans lequel est spécifié l'URL de cette action et le type HTTP à "Post
             var postRequest = new HttpRequestMessage(HttpMethod.Post, "https://localhost:44302/Students/Create/");
             var forText = "The Email field is required.";
-
+            //On attribut une valeur du cookie à l'en-tête de la demande de publication
+            postRequest.Headers.Add("Cookie", new CookieHeaderValue(AntiForgeryTokenExtractor.Cookie, antiForgeryVal.cookie).ToString());
 
             //On créé un modèle de formulaire qui est un type de dictionnaire
             var RegisterModel = new Dictionary< string, string>
             {
-                
+
+                //On attribut une Valeur du champ dans l'objet formModel
+                 { AntiForgeryTokenExtractor.Field, antiForgeryVal.field },
                 { "Name", "Person" },
                 { "Email", "" }
 
@@ -222,17 +230,25 @@ namespace EFCoreDemoTest.Tests_Integrations
         public async Task Create_POST_Action_ValidModel()
         {
             // Arrange
+            //on extrait les valeurs anti-falsification
+            var initialRes = await _client.GetAsync("https://localhost:44302/Students/Create/");
+            var antiForgeryVal = await AntiForgeryTokenExtractor.ExtractAntiForgeryValues(initialRes);
+
             //On crée un message de requête HTTP dans lequel on spécifié l'URL de cette action et le type HTTP à "Post"
             var postRequest = new HttpRequestMessage(HttpMethod.Post, "https://localhost:44302/Students/Create/");
             string [] val = { "New Person", "personnew@mail.com" };
 
+            //On attribut une valeur du cookie à l'en-tête de la demande de publication
+            postRequest.Headers.Add("Cookie", new CookieHeaderValue(AntiForgeryTokenExtractor.Cookie, antiForgeryVal.cookie).ToString());
 
+            
             // On créé un modèle de formulaire qui est un type de dictionnaire
             var StudentModel = new Dictionary< string, string>
 
-            {
-              { "Name", "New Person"},
-                { "Email", "personnew@mail.com"}
+            { //On attribut une Valeur du champ dans l'objet formModel
+                 { AntiForgeryTokenExtractor.Field, antiForgeryVal.field },
+                 { "Name", "New Person"},
+                 { "Email", "personnew@mail.com"}
             };
 
            
@@ -256,6 +272,8 @@ namespace EFCoreDemoTest.Tests_Integrations
         }
 
        
+
+
 
 
     }

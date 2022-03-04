@@ -41,6 +41,16 @@ namespace EFCoreDemoTest.Tests_Integrations
                 });
 
 
+
+                //antiforgery
+                //injectez les détails du jeton dans IServiceCollection
+                services.AddAntiforgery(t =>
+                {
+                    t.Cookie.Name = AntiForgeryTokenExtractor.Cookie;
+                    t.FormFieldName = AntiForgeryTokenExtractor.Field;
+                });
+
+
                 //********************************************************************************************************
 
                 // On créé le fournisseur de services et la portée de ce service. Ceci est fait pour que le nouveau service
